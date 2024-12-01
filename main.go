@@ -19,7 +19,7 @@ func main() {
 	// Load configuration
 	cfg := config.LoadConfig()
 
-	// Database connection
+	// Establish a database connection
 	connStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 		cfg.Database.Host, cfg.Database.Port, cfg.Database.User,
 		cfg.Database.Password, cfg.Database.DBName)
@@ -34,19 +34,21 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// Initialize database
-	initDatabase(db)
+	// Initialize database schema
+	if err := initDatabase(db); err != nil {
+		log.Fatal(err)
+	}
 
-	// Initialize dependencies
+	// Initialize application dependencies
 	urlRepo := repository.NewURLRepository(db)
 	urlService := service.NewURLService(urlRepo, cfg.Server.BaseURL)
 	urlHandler := handler.NewURLHandler(urlService)
 
-	// Setup router
+	// Setup HTTP request router
 	r := mux.NewRouter()
 	urlHandler.RegisterRoutes(r)
 
-	// Start server
+	// Start the server
 	serverAddr := fmt.Sprintf(":%s", cfg.Server.Port)
 	fmt.Printf("Server is running on %s://%s%s\n",
 		cfg.Server.Protocol, cfg.Server.Domain, serverAddr)

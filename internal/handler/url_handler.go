@@ -37,7 +37,7 @@ func (h *URLHandler) ShortenURL(w http.ResponseWriter, r *http.Request) {
 
 	resp, err := h.service.CreateShortURL(r.Context(), &req)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, "Failed to create short URL", http.StatusBadRequest)
 		return
 	}
 
